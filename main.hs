@@ -12,6 +12,7 @@ type Coordenada = (IndiceLinha,IndiceColuna)
 type Linha = [Elemento]
 type Matriz = [Linha]
 type Direcao = Int 
+type Lado = Int
 
 {- DIREÇÕES
 LESTE:
@@ -20,6 +21,12 @@ LESTE   = 2 [0-n]
 SE      = 3 [0-(n-1)] 
 
 n = tamanho da matriz - 1
+
+LADO:
+DIREITA = 0
+CIMA    = 1
+ESQUERDA= 2
+BAIXO   = 3
 -}
 
 ------------------------------------------------------
@@ -27,8 +34,9 @@ n = tamanho da matriz - 1
 -- MATRIZES TESTE
 matriz:: Int -> Matriz
 matriz 0 = [[0,0,0], [0,0,0], [0,0,0]]
-matriz 1 = [[4,3,4], [1,1,4], [3,4,4]]
-matriz 2 = [[3,3,4], [1,1,4], [2,5,4]]
+matriz 1 = [[5,2,5], [3,0,1], [4,3,4]]
+matriz 2 = [[0,0], [0,0]]
+matriz 3 = [[4,3,3,0], [7,3,3,2], [5,3,3,2], [3,1,3,0]]
 matriz n = []
 ------------------------------------------------------
 ------------------------------------------------------
@@ -112,16 +120,16 @@ matriz_zeros (a:b) | [w | w <- a, w /= 0]  == [] = matriz_zeros b
 ------------------------------------------------------
 -- RESOLVER
 
-resolver:: Matriz -> Linha
+resolver:: Matriz -> [[[Char]]]
 resolver [] = []
-resolver m = inicializacao m (tamanho m)
+resolver m = traducao (inicializacao m (tamanho m)) 0
     where
         inicializacao m n = primeiro m ([2] ++ [w | x <- [1..(n-1)], let w = 0]) 0 2 n 0 ([])
         
         primeiro m vetor indice direcao n seq resposta
             | m == [] = []
-            | (indice == n) && (seq > 1) = ultimo (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (resposta ++ vetor)
-            | (indice == n) = primeiro (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (seq+1) (resposta ++ vetor)
+            | (indice == n) && (seq > 1) = ultimo (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (resposta ++ [vetor])
+            | (indice == n) = primeiro (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (seq+1) (resposta ++ [vetor])
             | (indice == (n-1)) && (direcao > 2) = []
             | direcao > 3 = []
             | (primeiro (decrementar m indice direcao) vetor (indice+1) 1 n seq resposta) /= [] = primeiro (decrementar m indice direcao) (alterar_linha vetor indice direcao) (indice+1) 1 n seq resposta
@@ -129,7 +137,7 @@ resolver m = inicializacao m (tamanho m)
 
         ultimo m vetor indice direcao n resposta
             | m == [] = []
-            | indice == n = verificar m (vetor ++ resposta)
+            | indice == n = verificar m (resposta ++ [vetor])
             | (indice == (n-1)) && (direcao > 2) = []
             | direcao > 3 = []
             | ultimo (decrementar m indice direcao) vetor (indice+1) 1 n resposta /= [] = ultimo (decrementar m indice direcao) (alterar_linha vetor indice direcao) (indice+1) 1 n resposta
@@ -139,27 +147,52 @@ resolver m = inicializacao m (tamanho m)
             | matriz_zeros m  = vetor
             | otherwise = []
 
+inverter::Linha -> Linha
+inverter [] = []
+inverter (a:b) = (inverter b) ++ [a]
+
+traducao:: Matriz -> Lado -> [[[Char]]]
+traducao [] _ = []
+traducao (a:b) 0 = [(f a)] ++ (traducao b 1)
+        where
+            f [] = []
+            f (1:b) = ["NE"] ++ (f b)
+            f (2:b) = ["E"] ++ (f b)
+            f (3:b) = ["SE"] ++ (f b)
+
+traducao (a:b) 1 = [(f (inverter a))] ++ (traducao b 2)
+    where
+        f [] = []
+        f (1:b) = ["SE"] ++ (f b)
+        f (2:b) = ["S"] ++ (f b)
+        f (3:b) = ["SW"] ++ (f b)
+
+traducao (a:b) 2 = [(f (inverter a))] ++ (traducao b 3)
+    where
+        f [] = []
+        f (1:b) = ["SW"] ++ (f b)
+        f (2:b) = ["W"] ++ (f b)
+        f (3:b) = ["NW"] ++ (f b)
+
+traducao (a:b) 3 = [(f a)]
+    where
+        f [] = []
+        f (1:b) = ["NW"] ++ (f b)
+        f (2:b) = ["N"] ++ (f b)
+        f (3:b) = ["NE"] ++ (f b)
 
 ------------------------------------------------------
 ------------------------------------------------------
 -- EXECUTACAO
 
 main = do
+    print("RESOLVER - Exemplo entrada 1,2,3: https://br.spoj.com/problems/FLECHAS/")
+    print("")
     print(matriz 1)
-    print(rotacionar_matriz (matriz 1))
-    print(rotacionar_matriz (rotacionar_matriz (matriz 1)))
-    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 1))))
-    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 1)))))
-    print("1 - NE [1-n]")
-    print(decrementar (matriz 0) 1 1)
-    print(decrementar (matriz 0) 2 1)
-    print("2 - LESTE [0-n]")
-    print(decrementar (matriz 0) 0 2)
-    print(decrementar (matriz 0) 1 2)
-    print(decrementar (matriz 0) 2 2) 
-    print("3 - SE [0-(n-1)]")
-    print(decrementar (matriz 0) 0 3)
-    print(decrementar (matriz 0) 1 3)
-    print("RESOLVER")
     print(resolver(matriz 1))
+    print("")
+    print(matriz 2)
     print(resolver(matriz 2))
+    print("")
+    print(matriz 3)
+    print(resolver(matriz 3))
