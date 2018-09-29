@@ -1,6 +1,6 @@
 -- -*- coding: utf-8 -*-
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- DEFINIÇÕES
 
 type Elemento = Int
@@ -11,18 +11,18 @@ type IndiceLinha = Int
 type Coordenada = (IndiceLinha,IndiceColuna)
 type Linha = [Elemento]
 type Matriz = [Linha]
-type Direcao = Int -- 0 - Cima : 1 Baixo
-
+type Direcao = Int -- 1 Diagonal Cima - 2 Lado - 3 Diagonal Baixo
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- MATRIZES TESTE
 matriz:: Int -> Matriz
 matriz 0 = [[1,2,3], [4,5,6], [7,8,9]]
-matriz 1 = [[9,8,7], [6,5,4], [3,2,1]]
+matriz 1 = [[1,2,1], [1,0,0], [1,0,0]]
+matriz 2 = [[1,1,1], [0,0,0], [2,1,1]]
+matriz 3 = [[0,0,0], [0,0,0], [0,0,0]]
 matriz n = []
-
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- OPERACOES BASICAS
 
 retorna_elemento_matriz:: Matriz -> Coordenada -> Elemento
@@ -46,8 +46,14 @@ alterar_linha (a:b) 0 elemento = [elemento] ++ b
 alterar_linha (a:b) n elemento = [a] ++ (alterar_linha b (n-1) elemento)
 
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- DECREMENTAR
+
+decrementar:: Matriz -> IndiceLinha -> Direcao -> Matriz
+decrementar m i 0 = m
+decrementar m i 1 = decrementar_diagonal m (i,0) 1
+decrementar m i 2 = decrementar_linha m i
+decrementar m i 3 = decrementar_diagonal m (i,0) 0
 
 decrementar_elemento:: Matriz -> Coordenada -> Matriz
 decrementar_elemento (a:b) (0,j) = [(f a j)] ++ b
@@ -58,7 +64,7 @@ decrementar_elemento (a:b) (i,j) = [a] ++ (decrementar_elemento b (i-1,j))
 
 decrementar_linha::  Matriz -> IndiceLinha -> Matriz
 decrementar_linha (a:b) 0 = [[w | x <- a, let w = x -1]] ++ b
-decrementar_linha (a:b) n = [a] ++ (decrementar_linha b (n-1))
+decrement'ar_linha (a:b) n = [a] ++ (decrementar_linha b (n-1))
 
 decrementar_diagonal:: Matriz -> Coordenada -> Direcao -> Matriz
 decrementar_diagonal [] _ _ = []
@@ -71,16 +77,16 @@ decrementar_diagonal m cord n = f m cord ((tamanho m)-1)
         f m (i,j) n | i == n =  decrementar_elemento m (i,j)
                     | otherwise = f (decrementar_elemento m (i,j)) (i+1,j+1) n
 
-
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- ROTACIONAR MATRIZ
 rotacionar_matriz:: Matriz -> Matriz
-rotacionar_matriz m = m
-
+rotacionar_matriz []     = []
+rotacionar_matriz ([]:_) = []
+rotacionar_matriz (h:t)  = (map last (h:t)):(rotacionar_matriz (map init (h:t)))
 
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- VERIFICACOES
 
 numero_negativo:: Matriz -> Bool
@@ -94,15 +100,22 @@ matriz_zeros (a:b) | [w | w <- a, w /= 0]  == [] = matriz_zeros b
                    | otherwise = False
 
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- RESOLVER
 
+
 ------------------------------------------------------
--------------------------------------------------------
+------------------------------------------------------
 -- EXECUTACAO
 
 main = do
     print(matriz 0)
-    print(matriz_zeros [[0,0,0], [0,0,0], [0,0,0]])   
-    print(matriz_zeros [[0,0,0], [0,0,0], [0,1,0]])   
-    print(matriz_zeros [[0,0,0], [0,0,0], [0,0,-1]])
+    print(rotacionar_matriz (matriz 0))
+    print(rotacionar_matriz (rotacionar_matriz (matriz 0)))
+    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 0))))
+    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 0)))))
+    print("")
+    print(decrementar (matriz 3) 0 0)
+    print(decrementar (matriz 3) 0 1)
+    print(decrementar (matriz 3) 0 2)
+    print(decrementar (matriz 3) 0 3)
