@@ -107,9 +107,9 @@ rotacionar_matriz (h:t)  = (map last (h:t)):(rotacionar_matriz (map init (h:t)))
 -- VERIFICACOES
 
 numero_negativo:: Matriz -> Bool
-numero_negativo [] = True
+numero_negativo [] = False
 numero_negativo (a:b) | [w | w <- a, w < 0]  == [] = numero_negativo b
-                      | otherwise = False
+                      | otherwise = True
 
 matriz_zeros:: Matriz -> Bool
 matriz_zeros [] = True
@@ -128,6 +128,7 @@ resolver m = traducao (inicializacao m (tamanho m)) 0
         
         primeiro m vetor indice direcao n seq resposta
             | m == [] = []
+            | (numero_negativo m) = []
             | (indice == n) && (seq > 1) = ultimo (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (resposta ++ [vetor])
             | (indice == n) = primeiro (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (seq+1) (resposta ++ [vetor])
             | (indice == (n-1)) && (direcao > 2) = []
@@ -137,6 +138,7 @@ resolver m = traducao (inicializacao m (tamanho m)) 0
 
         ultimo m vetor indice direcao n resposta
             | m == [] = []
+            | (numero_negativo m) = []
             | indice == n = verificar m (resposta ++ [vetor])
             | (indice == (n-1)) && (direcao > 2) = []
             | direcao > 3 = []
