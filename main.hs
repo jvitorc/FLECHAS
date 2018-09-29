@@ -11,7 +11,17 @@ type IndiceLinha = Int
 type Coordenada = (IndiceLinha,IndiceColuna)
 type Linha = [Elemento]
 type Matriz = [Linha]
-type Direcao = Int -- 1 Diagonal Cima - 2 Lado - 3 Diagonal Baixo
+type Direcao = Int 
+
+{- DIREÇÕES
+LESTE:
+NE      = 1 [1-n]
+LESTE   = 2 [0-n]
+SE      = 3 [0-(n-1)] 
+
+n = tamanho da matriz - 1
+-}
+
 ------------------------------------------------------
 ------------------------------------------------------
 -- MATRIZES TESTE
@@ -51,9 +61,9 @@ alterar_linha (a:b) n elemento = [a] ++ (alterar_linha b (n-1) elemento)
 
 decrementar:: Matriz -> IndiceLinha -> Direcao -> Matriz
 decrementar m i 0 = m
-decrementar m i 1 = decrementar_diagonal m (i,0) 1
+decrementar m i 1 = decrementar_diagonal m (i-1,0) 0
 decrementar m i 2 = decrementar_linha m i
-decrementar m i 3 = decrementar_diagonal m (i,0) 0
+decrementar m i 3 = decrementar_diagonal m (i+1,0) 1
 
 decrementar_elemento:: Matriz -> Coordenada -> Matriz
 decrementar_elemento (a:b) (0,j) = [(f a j)] ++ b
@@ -64,7 +74,7 @@ decrementar_elemento (a:b) (i,j) = [a] ++ (decrementar_elemento b (i-1,j))
 
 decrementar_linha::  Matriz -> IndiceLinha -> Matriz
 decrementar_linha (a:b) 0 = [[w | x <- a, let w = x -1]] ++ b
-decrement'ar_linha (a:b) n = [a] ++ (decrementar_linha b (n-1))
+decrementar_linha (a:b) n = [a] ++ (decrementar_linha b (n-1))
 
 decrementar_diagonal:: Matriz -> Coordenada -> Direcao -> Matriz
 decrementar_diagonal [] _ _ = []
@@ -114,8 +124,14 @@ main = do
     print(rotacionar_matriz (rotacionar_matriz (matriz 0)))
     print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 0))))
     print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 0)))))
-    print("")
-    print(decrementar (matriz 3) 0 0)
-    print(decrementar (matriz 3) 0 1)
+    print("1 - NE [1-n]")
+    print(decrementar (matriz 3) 1 1)
+    print(decrementar (matriz 3) 2 1)
+    print("2 - LESTE [0-n]")
     print(decrementar (matriz 3) 0 2)
+    print(decrementar (matriz 3) 1 2)
+    print(decrementar (matriz 3) 2 2) 
+    print("3 - SE [0-(n-1)]")
     print(decrementar (matriz 3) 0 3)
+    print(decrementar (matriz 3) 1 3)
+
