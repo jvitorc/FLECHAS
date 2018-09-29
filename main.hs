@@ -26,10 +26,10 @@ n = tamanho da matriz - 1
 ------------------------------------------------------
 -- MATRIZES TESTE
 matriz:: Int -> Matriz
-matriz 0 = [[1,2,3], [4,5,6], [7,8,9]]
-matriz 1 = [[1,2,1], [1,0,0], [1,0,0]]
-matriz 2 = [[1,1,1], [0,0,0], [2,1,1]]
-matriz 3 = [[0,0,0], [0,0,0], [0,0,0]]
+matriz 0 = [[0,0,0], [0,0,0], [0,0,0]]
+matriz 1 = [[1,2,3], [4,5,6], [7,8,9]]
+matriz 2 = [[0,1,0], [3,1,1], [0,1,0]]
+matriz 3 = [[0,1,0], [2,0,0], [1,1,0]]
 matriz n = []
 ------------------------------------------------------
 ------------------------------------------------------
@@ -113,25 +113,45 @@ matriz_zeros (a:b) | [w | w <- a, w /= 0]  == [] = matriz_zeros b
 ------------------------------------------------------
 -- RESOLVER
 
+resolver:: Matriz -> Linha
+resolver [] = []
+resolver m = inicializacao m (tamanho m)
+    where
+        inicializacao m n = ultimo m ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n
+        
+        ultimo m vetor indice direcao n
+            | m == [] = []
+            | indice == n = verificar m vetor
+            | (indice == (n-1)) && (direcao > 2) = []
+            | direcao > 3 = []
+            | ultimo (decrementar m indice direcao) vetor (indice+1) 1 n /= [] = ultimo (decrementar m indice direcao) (alterar_linha vetor indice direcao) (indice+1) 1 n
+            | otherwise = ultimo m (alterar_linha vetor indice (direcao+1)) indice (direcao+1) n
+
+        verificar m vetor
+            | matriz_zeros m  = vetor
+            | otherwise = []
+
 
 ------------------------------------------------------
 ------------------------------------------------------
 -- EXECUTACAO
 
 main = do
-    print(matriz 0)
-    print(rotacionar_matriz (matriz 0))
-    print(rotacionar_matriz (rotacionar_matriz (matriz 0)))
-    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 0))))
-    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 0)))))
+    print(matriz 1)
+    print(rotacionar_matriz (matriz 1))
+    print(rotacionar_matriz (rotacionar_matriz (matriz 1)))
+    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 1))))
+    print(rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (rotacionar_matriz (matriz 1)))))
     print("1 - NE [1-n]")
-    print(decrementar (matriz 3) 1 1)
-    print(decrementar (matriz 3) 2 1)
+    print(decrementar (matriz 0) 1 1)
+    print(decrementar (matriz 0) 2 1)
     print("2 - LESTE [0-n]")
-    print(decrementar (matriz 3) 0 2)
-    print(decrementar (matriz 3) 1 2)
-    print(decrementar (matriz 3) 2 2) 
+    print(decrementar (matriz 0) 0 2)
+    print(decrementar (matriz 0) 1 2)
+    print(decrementar (matriz 0) 2 2) 
     print("3 - SE [0-(n-1)]")
-    print(decrementar (matriz 3) 0 3)
-    print(decrementar (matriz 3) 1 3)
-
+    print(decrementar (matriz 0) 0 3)
+    print(decrementar (matriz 0) 1 3)
+    print("RESOLVER")
+    print(resolver(matriz 2))
+    print(resolver(matriz 3))
