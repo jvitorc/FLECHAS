@@ -27,9 +27,8 @@ n = tamanho da matriz - 1
 -- MATRIZES TESTE
 matriz:: Int -> Matriz
 matriz 0 = [[0,0,0], [0,0,0], [0,0,0]]
-matriz 1 = [[1,2,3], [4,5,6], [7,8,9]]
-matriz 2 = [[0,1,0], [3,1,1], [0,1,0]]
-matriz 3 = [[0,1,0], [2,0,0], [1,1,0]]
+matriz 1 = [[4,3,4], [1,1,4], [3,4,4]]
+matriz 2 = [[3,3,4], [1,1,4], [2,5,4]]
 matriz n = []
 ------------------------------------------------------
 ------------------------------------------------------
@@ -117,15 +116,24 @@ resolver:: Matriz -> Linha
 resolver [] = []
 resolver m = inicializacao m (tamanho m)
     where
-        inicializacao m n = ultimo m ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n
+        inicializacao m n = primeiro m ([2] ++ [w | x <- [1..(n-1)], let w = 0]) 0 2 n 0 ([])
         
-        ultimo m vetor indice direcao n
+        primeiro m vetor indice direcao n seq resposta
             | m == [] = []
-            | indice == n = verificar m vetor
+            | (indice == n) && (seq > 1) = ultimo (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (resposta ++ vetor)
+            | (indice == n) = primeiro (rotacionar_matriz m) ([2]++[w | x <- [1..(n-1)], let w = 0]) 0 2 n (seq+1) (resposta ++ vetor)
             | (indice == (n-1)) && (direcao > 2) = []
             | direcao > 3 = []
-            | ultimo (decrementar m indice direcao) vetor (indice+1) 1 n /= [] = ultimo (decrementar m indice direcao) (alterar_linha vetor indice direcao) (indice+1) 1 n
-            | otherwise = ultimo m (alterar_linha vetor indice (direcao+1)) indice (direcao+1) n
+            | (primeiro (decrementar m indice direcao) vetor (indice+1) 1 n seq resposta) /= [] = primeiro (decrementar m indice direcao) (alterar_linha vetor indice direcao) (indice+1) 1 n seq resposta
+            | otherwise = primeiro m (alterar_linha vetor indice (direcao+1)) indice (direcao+1) n seq resposta
+
+        ultimo m vetor indice direcao n resposta
+            | m == [] = []
+            | indice == n = verificar m (vetor ++ resposta)
+            | (indice == (n-1)) && (direcao > 2) = []
+            | direcao > 3 = []
+            | ultimo (decrementar m indice direcao) vetor (indice+1) 1 n resposta /= [] = ultimo (decrementar m indice direcao) (alterar_linha vetor indice direcao) (indice+1) 1 n resposta
+            | otherwise = ultimo m (alterar_linha vetor indice (direcao+1)) indice (direcao+1) n resposta
 
         verificar m vetor
             | matriz_zeros m  = vetor
@@ -153,5 +161,5 @@ main = do
     print(decrementar (matriz 0) 0 3)
     print(decrementar (matriz 0) 1 3)
     print("RESOLVER")
+    print(resolver(matriz 1))
     print(resolver(matriz 2))
-    print(resolver(matriz 3))
